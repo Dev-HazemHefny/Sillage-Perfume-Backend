@@ -1,9 +1,40 @@
 import { body } from "express-validator";
 
-export const craeteValidator = [
-  body("name").isLength({ min: 3, max: 20 }).withMessage("Name must be 3-20 characters"),
+export const createCategoryValidator = [
+  body("name")
+    .trim()
+    .notEmpty()
+    .withMessage("Category name is required")
+    .isLength({ min: 2, max: 50 })
+    .withMessage("Name must be between 2-50 characters"),
+
+  body("description")
+    .optional()
+    .trim()
+    .isLength({ max: 200 })
+    .withMessage("Description cannot exceed 200 characters"),
+
+  body("isActive")
+    .optional()
+    .isBoolean()
+    .withMessage("isActive must be boolean"),
 ];
 
-export const updateValidator = [
-  body("name").optional().isLength({ min: 3, max: 20 }).withMessage("Name must be 3-20 characters"),
+export const updateCategoryValidator = [
+  body("name")
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 50 })
+    .withMessage("Name must be between 2-50 characters"),
+
+  body("description")
+    .optional()
+    .trim()
+    .isLength({ max: 200 })
+    .withMessage("Description cannot exceed 200 characters"),
+
+  body("isActive")
+    .optional()
+    .isBoolean()
+    .withMessage("isActive must be boolean"),
 ];
