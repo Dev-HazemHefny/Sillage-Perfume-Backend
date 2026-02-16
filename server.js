@@ -8,6 +8,7 @@ import { errorHandler } from "./server/Middlewares/errorHandler.js";
 import authRoutes from "./server/Routes/AuthRoutes.js";
 import productRoutes from "./server/Routes/ProductRoutes.js";
 import categoryRoutes from "./server/Routes/CategoryRoutes.js";
+import orderRoutes from "./server/Routes/OrderRoutes.js";
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/orders", orderRoutes);
 
 // Health check
 app.get("/", (req, res) => {

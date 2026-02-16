@@ -130,12 +130,17 @@ ProductSchema.index({ name: "text", description: "text" });
 
 // Virtual for total stock across all sizes
 ProductSchema.virtual("totalStock").get(function () {
-  return this.sizes.reduce((total, size) => total + size.stock, 0);
+  // حراسة: ارجع 0 لو sizes غير معرفة
+  if (!this.sizes || !Array.isArray(this.sizes)) return 0;
+  return this.sizes.reduce((total, size) => total + (size.stock || 0), 0);
 });
 
 // Virtual for price range
 ProductSchema.virtual("priceRange").get(function () {
-  const prices = this.sizes.map((s) => s.price);
+  if (!this.sizes || !Array.isArray(this.sizes) || this.sizes.length === 0) {
+    return { min: 0, max: 0 };
+  }
+  const prices = this.sizes.map((s) => s.price || 0);
   return {
     min: Math.min(...prices),
     max: Math.max(...prices),
@@ -144,7 +149,9 @@ ProductSchema.virtual("priceRange").get(function () {
 
 // Pre-save middleware to update status based on stock
 ProductSchema.pre("save", async function () {
-  const totalStock = this.sizes.reduce((total, size) => total + size.stock, 0);
+  // Use empty array guard to avoid crashes when sizes is undefined
+  const sizesArray = Array.isArray(this.sizes) ? this.sizes : [];
+  const totalStock = sizesArray.reduce((total, size) => total + (size.stock || 0), 0);
 
   if (totalStock === 0) {
     this.status = "unavailable";
@@ -153,8 +160,8 @@ ProductSchema.pre("save", async function () {
   }
 
   // Update isAvailable for each size
-  this.sizes.forEach((size) => {
-    size.isAvailable = size.stock > 0;
+  sizesArray.forEach((size) => {
+    size.isAvailable = (size.stock || 0) > 0;
   });
 });
 
