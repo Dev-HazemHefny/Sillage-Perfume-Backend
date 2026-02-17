@@ -7,17 +7,21 @@ import Product from "../Models/Product.js";
 // @route   GET /api/categories
 // @access  Public
 export const getCategories = asyncHandler(async (req, res) => {
-  const { isActive } = req.query;
-  
-  const filter = {};
-  if (isActive !== undefined) filter.isActive = isActive === "true";
+  const categories = await Category.find({ isActive: true })
+    .sort('name')
+    .lean();
 
-  const categories = await Category.find(filter).sort("name");
+  // ✅ Count products for each category
+  const categoriesWithCount = await Promise.all(
+    categories.map(async (cat) => {
+      const count = await Product.countDocuments({ category: cat._id });
+      return { ...cat, productsCount: count };
+    })
+  );
 
   res.status(200).json({
-    status: "success",
-    message: "Categories retrieved successfully",
-    data: categories,
+    status: 'success',
+    data: categoriesWithCount,
   });
 });
 
